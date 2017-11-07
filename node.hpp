@@ -14,6 +14,7 @@ public:
 	multiset<uint32_t> minterms;
 	set<uint32_t>differences;
 
+
 	Node(multiset<uint32_t> minterms, set<uint32_t> differences) : minterms(minterms), differences(differences)
 	{
 	}
@@ -46,7 +47,7 @@ public:
 			}
 			line << ")";
 		}
-		if (checked) line << "*";
+		if (checked) line << " *";
 		return line.str();
 	}
 	

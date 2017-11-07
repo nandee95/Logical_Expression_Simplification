@@ -1,12 +1,14 @@
+
 cmake_minimum_required (VERSION 3.1)
+
 
 #set C++ standard
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(LogicalExpressionSimlification CXX)
+project(ExpressionSimplification CXX)
 
-add_executable(LogicalExpressionSimlification
+add_executable(ExpressionSimplification
 	main.cpp
 	application.cpp
 	application.hpp

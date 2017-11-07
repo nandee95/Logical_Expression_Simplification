@@ -6,6 +6,8 @@
 #include <map>
 #include <algorithm>
 #include <regex>
+#include <iomanip>
+#include <iostream>
 #include "string.hpp"
 #include "column.hpp"
 
@@ -14,7 +16,9 @@ using namespace std;
 struct SimpResult
 {
 	vector<vector<string>> lines;
+	string table;
 	string expression;
+	string expression_hazard_free;
 };
 
 

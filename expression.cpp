@@ -228,7 +228,22 @@ const SimpResult Expression::simplify()
 	}
 
 	//Determine the simplest possible expression
+	char ch = 'a';
+	for (auto& o : result.lines)
+	{
+		for (auto& i : o)
+		{
+			if (*prev(i.end()) == ')')
+			{
+				i.push_back(' ');
+				i.push_back(ch);
+				ch++;
+			}
+		}
+	}
 
+
+	vector<Node> nodes;
 	for (auto& c : cols)
 	{
 		for (auto& g : c.groups)
@@ -236,13 +251,73 @@ const SimpResult Expression::simplify()
 			for (auto& n : g.second)
 			{
 				if (n.checked) continue;
-				result.expression += n.getMintermForm(variables) + "+";
+				result.expression_hazard_free += n.getMintermForm(variables) + "+";
+				nodes.push_back(n);
 			}
 		}
 	}
+	map<int, vector<vector<Node>::iterator>> minterms;
+	for (auto it = nodes.begin(); it != nodes.end(); it++)
+	{
+		for (auto& m : it->minterms)
+		{
+			minterms[m].push_back(it);
+		}
+	}
+	stringstream t;
+	t << setw(6) << " ";
+	for (auto& m : minterms)
+	{
+		t << setw(4) << m.first;
+	}
+	t << endl;
+	ch = 'a';
+	for (auto& n : nodes) //Make the table
+	{
+		t << setw(6) << ch;
+		ch++;
+		for (auto& m : minterms)
+		{
+			const bool contains = count_if(n.minterms.begin(), n.minterms.end(), [m](int mi) {
+				return m.first == mi;
+			})>0;
+			t << setw(4) << (contains ? "X" : " ");
+		}
+		t << endl;
+	}
+	uint32_t index = 1;
+	while (minterms.size() > 0)
+	{
+		bool found;
+		do //Find the columns only have 1 X
+		{
+			found = false;
+			for (auto m : minterms)
+			{
+				if (m.second.size() == index)
+				{
+					found = true;
+					result.expression += m.second[0]->getMintermForm(variables) + "+"; //Note it
+
+					for (auto& nm : m.second[0]->minterms)
+					{
+						minterms.erase(nm); //Remove all minterms that covers this expression
+					}
+					break;
+				}
+			}
+		} while (found);
+		index++;
+	}
+
+	result.table = t.str();
+
 	if (!result.expression.empty())
 		result.expression.erase(prev(result.expression.end()));
 
+	if (!result.expression_hazard_free.empty())
+		result.expression_hazard_free.erase(prev(result.expression_hazard_free.end()));
+	else result.expression_hazard_free = result.expression;
 
 	return result;
 }
@@ -277,8 +352,8 @@ const bool Expression::validate(string & exp)
 	if (regex_match(exp, r1))
 	{
 		uint32_t maxminterm = static_cast<uint32_t>(pow(2, count_if(exp.begin(), exp.end(), isalpha)));
-
-		string temp = exp.substr(exp.find_first_of(')') + 1, exp.size() - exp.find_first_of(')'));
+		size_t pos = exp.find_first_of(')');
+		string temp = exp.substr(pos + 1, exp.size() - pos);
 		str::replace_all(temp, ",", " ");
 		stringstream ss(temp);
 

@@ -2,6 +2,7 @@
 
 Application::Application()
 {
+	system("title Expression Simplification");
 }
 
 int Application::run()
@@ -68,10 +69,10 @@ int Application::run()
 	}
 
 	cout << endl;
-
 	SimpResult r = exp->simplify();
 
 	cout << "Result: " << r.expression << endl;
+	cout << "Result(Hazard free): " << r.expression_hazard_free << endl;
 
 	cout << "Details:" << endl;
 
@@ -104,11 +105,13 @@ int Application::run()
 	//Headers
 	for (size_t g = 0; g < r.lines.size(); g++)
 	{
+		if(r.lines[g].size() <= 0) break;
 		cout << setw(widths[g]) << (str::to_roman(g + 1) + ".");
 	}
 	cout << endl;
 	for (size_t g = 0; g < r.lines.size(); g++)
 	{
+		if (r.lines[g].size() <= 0) break;
 		string delim;
 		for (int32_t i = 0; i < widths[g] - 3; i++)
 			delim += '-';
@@ -137,6 +140,9 @@ int Application::run()
 		}
 		cout << endl;
 	}
+	cout << setfill('_') << setw(90) << " " << setfill(' ') << endl << endl;
+	cout << r.table;
+
 	system("pause>nul");
 	return 1;
 }
